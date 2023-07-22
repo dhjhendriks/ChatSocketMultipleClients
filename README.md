@@ -1,4 +1,8 @@
 # Socket
- Python server client code
+ Python server client socket chat code
 
- Still under development
+ usage: python main.py server
+ or:    python main.py client
+
+ Language model included
+ Settings included
