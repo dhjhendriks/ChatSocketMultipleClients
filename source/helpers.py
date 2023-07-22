@@ -19,11 +19,8 @@ def filewrite(logfile,text):
     with open(logfile, 'a') as log:
         log.write(text + "\n")
 
-def clear_screen():
-    os.system('cls')
-
 def welcome(VERSION,EXIT_STRING):
-    clear_screen()
+    os.system('cls')
     print(f"Welcome to Socket! {VERSION}")
     print(f"Type '{EXIT_STRING}' to exit\n")
 
@@ -35,7 +32,7 @@ def text_message(logfile,text):
 
 def client_input(my_username,client_socket,HEADER_LENGTH,logfile,EXIT_STRING):
     while True:
-        message = input(f'{my_username}> ')
+        message = input()
         if message == EXIT_STRING:
             text_message(f"{logfile}",f"You closed the connection")
             sys.exit()
@@ -45,7 +42,7 @@ def client_input(my_username,client_socket,HEADER_LENGTH,logfile,EXIT_STRING):
             client_socket.send(message_header + send_message)
             text_message(f"{logfile}",f"{my_username}> {message}")
            
-def client_recv(my_username,client_socket,HEADER_LENGTH,logfile,EXIT_STRING):
+def client_recv(client_socket,HEADER_LENGTH,logfile):
     while True:
         try:
             while True:
@@ -58,15 +55,15 @@ def client_recv(my_username,client_socket,HEADER_LENGTH,logfile,EXIT_STRING):
                 message_header = client_socket.recv(HEADER_LENGTH)
                 message_length = int(message_header.decode('utf-8').strip())
                 recv_message = client_socket.recv(message_length).decode('utf-8')
-                print(f'{username}> {recv_message}')
+                text_message(f"{logfile}",f'{username}> {recv_message}')
 
         except IOError as e:
             if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
-                print('Reading error: {}'.format(str(e)))
+                text_message(f"{logfile}",f"{str(e)}")
                 sys.exit()
             continue
         except Exception as e:
-            print('Reading error: '.format(str(e)))
+            text_message(f"{logfile}",f"{str(e)}")
             sys.exit() 
 
 def server_input(logfile,EXIT_STRING):
