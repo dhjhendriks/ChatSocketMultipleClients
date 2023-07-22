@@ -20,8 +20,8 @@ match arg1:
         welcome(VERSION,EXIT_STRING)
         text_message(f"{logfile}",f"Listening for connections on {IP}:{PORT}...")
 
-        threading.Thread(target=server_input, args=[logfile,EXIT_STRING], daemon=False).start()
-        threading.Thread(target=server_recv, args=[sockets_list,server_socket,clients,logfile], daemon=True).start()
+        threading.Thread(target=server_send, args=[logfile,EXIT_STRING], daemon=False).start()
+        threading.Thread(target=server_recv, args=[sockets_list,server_socket,clients,logfile,HEADER_LENGTH], daemon=True).start()
 
     case "c" | "client":
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -37,7 +37,7 @@ match arg1:
         client_socket.send(username_header + username)
         text_message(f"{logfile}",f"The server on {IP}:{PORT} accepted the username: {my_username}")
 
-        threading.Thread(target=client_input, args=[my_username,client_socket,HEADER_LENGTH,logfile,EXIT_STRING], daemon=False).start()
+        threading.Thread(target=client_send, args=[my_username,client_socket,HEADER_LENGTH,logfile,EXIT_STRING], daemon=False).start()
         threading.Thread(target=client_recv, args=[client_socket,HEADER_LENGTH,logfile], daemon=True).start()
 
     case _:

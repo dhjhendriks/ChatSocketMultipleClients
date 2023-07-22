@@ -2,7 +2,26 @@ import socket,select,errno,sys,os,threading,time,argparse
 from datetime import datetime
 from source.settings import *
 
-def receive_message(client_socket):
+def welcome(VERSION,EXIT_STRING):
+    os.system('cls')
+    print(f"Welcome to Socket! {VERSION}")
+    print(f"Type '{EXIT_STRING}' to exit\n")
+
+############################### Logging
+
+def get_time():
+    return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+def filewrite(logfile,text):
+    with open(logfile, 'a') as log:
+        log.write(text + "\n")
+
+def text_message(logfile,text):
+    message = f"{get_time()} - {text}"
+    print(f"{message}")
+    filewrite(f"{logfile}",f"{message}")
+
+def receive_message(client_socket,HEADER_LENGTH):
     try:
         message_header = client_socket.recv(HEADER_LENGTH)
         if not len(message_header):
@@ -12,25 +31,46 @@ def receive_message(client_socket):
     except:
         return False
 
-def get_time():
-    return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+############################### Server
 
-def filewrite(logfile,text):
-    with open(logfile, 'a') as log:
-        log.write(text + "\n")
+def server_send(logfile,EXIT_STRING):
+    while True:
+        message = input()
+        if message == EXIT_STRING:
+            text_message(f"{logfile}",f"You stopped the server.")
+            sys.exit()
 
-def welcome(VERSION,EXIT_STRING):
-    os.system('cls')
-    print(f"Welcome to Socket! {VERSION}")
-    print(f"Type '{EXIT_STRING}' to exit\n")
+def server_recv(sockets_list,server_socket,clients,logfile,HEADER_LENGTH):
+    while True:
+        read_sockets, _, exception_sockets = select.select(sockets_list, [], sockets_list)
+        for notified_socket in read_sockets:
+            if notified_socket == server_socket:
+                client_socket, client_address = server_socket.accept()
+                user = receive_message(client_socket),HEADER_LENGTH
+                if user is False:
+                    continue
+                sockets_list.append(client_socket)
+                clients[client_socket] = user
+                text_message(f"{logfile}",f"Accepted new connection from {client_address} - username: {user['data'].decode('utf-8')}")
+            else:
+                message = receive_message(notified_socket,HEADER_LENGTH)
+                if message is False:
+                    text_message(f"{logfile}",f"Closed connection from: {clients[notified_socket]['data'].decode('utf-8')}")
+                    sockets_list.remove(notified_socket)
+                    del clients[notified_socket]
+                    continue
+                user = clients[notified_socket]
+                text_message(f"{logfile}",f"{user['data'].decode('utf-8')}: {message['data'].decode('utf-8')}")
+                for client_socket in clients:
+                    if client_socket != notified_socket:
+                        client_socket.send(user['header'] + user['data'] + message['header'] + message['data'])
+        for notified_socket in exception_sockets:
+            sockets_list.remove(notified_socket)
+            del clients[notified_socket]
 
+############################### Client
 
-def text_message(logfile,text):
-    message = f"{get_time()} - {text}"
-    print(f"{message}")
-    filewrite(f"{logfile}",f"{message}")
-
-def client_input(my_username,client_socket,HEADER_LENGTH,logfile,EXIT_STRING):
+def client_send(my_username,client_socket,HEADER_LENGTH,logfile,EXIT_STRING):
     while True:
         message = input()
         if message == EXIT_STRING:
@@ -65,40 +105,3 @@ def client_recv(client_socket,HEADER_LENGTH,logfile):
         except Exception as e:
             text_message(f"{logfile}",f"{str(e)}")
             sys.exit() 
-
-def server_input(logfile,EXIT_STRING):
-    while True:
-        message = input()
-        if message == EXIT_STRING:
-            text_message(f"{logfile}",f"You stopped the server.")
-            sys.exit()
-
-def server_recv(sockets_list,server_socket,clients,logfile):
-    while True:
-        read_sockets, _, exception_sockets = select.select(sockets_list, [], sockets_list)
-        for notified_socket in read_sockets:
-            if notified_socket == server_socket:
-                client_socket, client_address = server_socket.accept()
-                user = receive_message(client_socket)
-                if user is False:
-                    continue
-                sockets_list.append(client_socket)
-                clients[client_socket] = user
-                text_message(f"{logfile}",f"Accepted new connection from {client_address} - username: {user['data'].decode('utf-8')}")
-            else:
-                message = receive_message(notified_socket)
-                if message is False:
-                    text_message(f"{logfile}",f"Closed connection from: {clients[notified_socket]['data'].decode('utf-8')}")
-                    sockets_list.remove(notified_socket)
-                    del clients[notified_socket]
-                    continue
-                user = clients[notified_socket]
-                text_message(f"{logfile}",f"{user['data'].decode('utf-8')}: {message['data'].decode('utf-8')}")
-                for client_socket in clients:
-                    if client_socket != notified_socket:
-                        client_socket.send(user['header'] + user['data'] + message['header'] + message['data'])
-        for notified_socket in exception_sockets:
-            sockets_list.remove(notified_socket)
-            del clients[notified_socket]
-
-
