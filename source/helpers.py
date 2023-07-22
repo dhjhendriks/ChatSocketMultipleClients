@@ -32,22 +32,26 @@ def text_message(logfile,text):
 
 ############################### Server
 
-def server_send(sockets_list,my_socket,clients,logfile,HEADER_LENGTH,EXIT_STRING):
-    while True:
-        message = input()
-        if message == EXIT_STRING:
-            text_message(f"{logfile}",f"{get_text('You stopped the server',L)}")
-            sys.exit()
-
 def receive_message(my_socket,HEADER_LENGTH):
     try:
         message_header = my_socket.recv(HEADER_LENGTH)
         if not len(message_header):
             return False
-        message_length = int(message_header.decode(CODEC).strip())
-        return {'header': message_header, 'data': my_socket.recv(message_length)}
+        return {'header': message_header, 'data': my_socket.recv(length(message_header))}
     except:
         return False
+
+def server_send(clients,logfile,EXIT_STRING):
+    global server_message,my_username
+    while True:
+        server_message = input()
+        if server_message == EXIT_STRING:
+            text_message(f"{logfile}",f"{get_text('You stopped the server',L)}")
+            sys.exit()
+        if len(server_message) :
+            for client_socket in clients:
+                client_socket.send(header(encod(my_username)) + encod(my_username)+header(encod(server_message)) + encod(server_message))
+            server_message=""
 
 def server_recv(sockets_list,my_socket,clients,logfile,HEADER_LENGTH):
     while True:
@@ -71,7 +75,6 @@ def server_recv(sockets_list,my_socket,clients,logfile,HEADER_LENGTH):
                 text_message(f"{logfile}",f"{user['data'].decode(CODEC)}: {message['data'].decode(CODEC)}")
                 user = clients[notified_socket]
                 for client_socket in clients:
-                    if client_socket != notified_socket:
                         client_socket.send(user['header'] + user['data'] + message['header'] + message['data'])
         for notified_socket in exception_sockets:
             sockets_list.remove(notified_socket)
@@ -79,7 +82,7 @@ def server_recv(sockets_list,my_socket,clients,logfile,HEADER_LENGTH):
 
 ############################### Client
 
-def client_send(my_username,my_socket,logfile,EXIT_STRING):
+def client_send(my_socket,logfile,EXIT_STRING):
     while True:
         message = input()
         if message == EXIT_STRING:
@@ -87,7 +90,6 @@ def client_send(my_username,my_socket,logfile,EXIT_STRING):
             sys.exit()
         if message:
             my_socket.send(header(encod(message)) + encod(message))
-            text_message(f"{logfile}",f"{my_username}> {message}")
            
 def client_recv(my_socket,HEADER_LENGTH,logfile):
     while True:
@@ -97,11 +99,11 @@ def client_recv(my_socket,HEADER_LENGTH,logfile):
                 if not len(username_header):
                     text_message(f"{logfile}",f"Connection closed by the server")
                     sys.exit()
-                username_length = int(username_header.decode(CODEC).strip())
-                username = my_socket.recv(username_length).decode(CODEC)
+                username_length = length(username_header)
+                username = decod(my_socket.recv(username_length))
                 message_header = my_socket.recv(HEADER_LENGTH)
-                message_length = int(message_header.decode(CODEC).strip())
-                recv_message = my_socket.recv(message_length).decode(CODEC)
+                message_length = length(message_header)
+                recv_message = decod(my_socket.recv(message_length))
                 text_message(f"{logfile}",f'{username}> {recv_message}')
 
         except IOError as e:
@@ -126,3 +128,8 @@ def decod(text):
 def header(text):
     global HEADER_LENGTH
     return encod(f"{len(text):<{HEADER_LENGTH}}")
+
+def length(text):
+    global CODEC
+    return int(text.decode(CODEC).strip())
+
