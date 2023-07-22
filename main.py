@@ -1,5 +1,16 @@
 from source.helpers import *
-from source.settings import *
+
+VERSION = settings_read('main','VERSION')
+IP = settings_read('main','IP')
+PORT = int(settings_read('main','PORT'))
+HEADER_LENGTH = int(settings_read('main','HEADER_LENGTH'))
+EXIT_STRING = settings_read('main','EXIT_STRING')
+CODEC = settings_read('main','CODEC')
+L =  settings_read('main','LANGUAGE')
+logfile = settings_read('main','LOGFILE')
+my_username = settings_read('main','USERNAME_SERVER')
+#print(HEADER_LENGTH)
+#sys.exit()
 
 match get_arguments():
     case "s" | "server":
@@ -18,8 +29,17 @@ match get_arguments():
         threading.Thread(target=server_recv, args=[sockets_list,my_socket,clients,logfile,HEADER_LENGTH], daemon=True).start()
 
     case "c" | "client":
+        temp = input (f"{IP}: ")
+        if temp != "": IP = temp
+        temp = input (f"{PORT}: ")
+        if temp != "": PORT = temp
+        
         my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        my_socket.connect((IP, PORT))
+        try:
+            my_socket.connect((IP, PORT))
+        except:
+            #add server not awnsering
+            sys.exit()
         my_socket.setblocking(False)
 
         welcome(VERSION,EXIT_STRING)

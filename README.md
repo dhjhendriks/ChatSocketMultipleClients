@@ -8,7 +8,7 @@
 
  Language model included
 
- Settings included
+ config file ini included
 
 Log files for client and server
 

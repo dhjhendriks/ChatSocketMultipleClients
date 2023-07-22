@@ -1,14 +1,20 @@
 import socket,select,errno,sys,os,threading,time,argparse
+from configparser import ConfigParser
 from datetime import datetime
-from source.settings import *
 from source.language import *
+L='nl'
 
 def welcome(VERSION,EXIT_STRING):
     os.system('cls')
     print(f"{get_text('welcome',L)} {VERSION}")
     print(f"{get_text('type',L)} '{EXIT_STRING}' {get_text('to exit',L)}\n")
 
-############################### Arguments
+############################### Arguments and settings
+
+def settings_read(menu,setting):
+    config = ConfigParser()
+    config.read('config.ini')
+    return config.get(menu, setting)
 
 def get_arguments():
     parser = argparse.ArgumentParser()
