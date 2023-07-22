@@ -31,7 +31,7 @@ match get_arguments():
         my_socket.send(username_header + username)
         text_message(f"{logfile}",f"{get_text('The server on',L)} {IP}:{PORT} {get_text('accepted the username',L)}: {my_username}")
 
-        threading.Thread(target=client_send, args=[my_username,my_socket,HEADER_LENGTH,logfile,EXIT_STRING], daemon=False).start()
+        threading.Thread(target=client_send, args=[my_username,my_socket,logfile,EXIT_STRING], daemon=False).start()
         threading.Thread(target=client_recv, args=[my_socket,HEADER_LENGTH,logfile], daemon=True).start()
 
     case _:

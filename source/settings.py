@@ -6,3 +6,4 @@ EXIT_STRING = "exit"
 CODEC = "utf-8"
 L = "en" #LANGUAGE
 logfile = "server.log"
+my_username = "Server"

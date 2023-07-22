@@ -79,16 +79,14 @@ def server_recv(sockets_list,my_socket,clients,logfile,HEADER_LENGTH):
 
 ############################### Client
 
-def client_send(my_username,my_socket,HEADER_LENGTH,logfile,EXIT_STRING):
+def client_send(my_username,my_socket,logfile,EXIT_STRING):
     while True:
         message = input()
         if message == EXIT_STRING:
             text_message(f"{logfile}",f"You closed the connection")
             sys.exit()
         if message:
-            send_message = message.encode(CODEC)
-            message_header = f"{len(send_message):<{HEADER_LENGTH}}".encode(CODEC)
-            my_socket.send(message_header + send_message)
+            my_socket.send(header(encod(message)) + encod(message))
             text_message(f"{logfile}",f"{my_username}> {message}")
            
 def client_recv(my_socket,HEADER_LENGTH,logfile):
@@ -114,3 +112,17 @@ def client_recv(my_socket,HEADER_LENGTH,logfile):
         except Exception as e:
             text_message(f"{logfile}",f"{str(e)}")
             sys.exit() 
+
+############################### Encode/Decode
+
+def encod(text):
+    global CODEC
+    return text.encode(CODEC)
+
+def decod(text):
+    global CODEC
+    return text.decode(CODEC)
+
+def header(text):
+    global HEADER_LENGTH
+    return encod(f"{len(text):<{HEADER_LENGTH}}")
