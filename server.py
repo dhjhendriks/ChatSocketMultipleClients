@@ -9,9 +9,8 @@ server_socket.listen()
 sockets_list = [server_socket]
 clients = {}
 
-tt = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-print_time()
-print(f'--Listening for connections on {IP}:{PORT}...')
+clear_screen()
+server_message(f"Listening for connections on {IP}:{PORT}...")
 
 while True:
     read_sockets, _, exception_sockets = select.select(sockets_list, [], sockets_list)
@@ -23,19 +22,16 @@ while True:
                 continue
             sockets_list.append(client_socket)
             clients[client_socket] = user
-            print_time()
-            print('--Accepted new connection from {}:{}, username: {}'.format(*client_address, user['data'].decode('utf-8')))
+            server_message(f"Accepted new connection from {client_address} - username: {user['data'].decode('utf-8')}")
         else:
             message = receive_message(notified_socket)
             if message is False:
-                print_time()
-                print('Closed connection from: {}'.format(clients[notified_socket]['data'].decode('utf-8')))
+                server_message(f"Closed connection from: {clients[notified_socket]['data'].decode('utf-8')}")
                 sockets_list.remove(notified_socket)
                 del clients[notified_socket]
                 continue
             user = clients[notified_socket]
-            print_time()
-            print(f'--Received message from {user["data"].decode("utf-8")}: {message["data"].decode("utf-8")}')
+            server_message(f"{user['data'].decode('utf-8')}: {message['data'].decode('utf-8')}")
             for client_socket in clients:
                 if client_socket != notified_socket:
                     client_socket.send(user['header'] + user['data'] + message['header'] + message['data'])

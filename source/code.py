@@ -1,7 +1,4 @@
-import socket
-import select
-import errno
-import sys
+import socket,select,errno,sys,os
 from datetime import datetime
 from source.settings import *
 
@@ -15,6 +12,17 @@ def receive_message(client_socket):
     except:
         return False
 
-def print_time():
-    tt = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    print(tt)
+def get_time():
+    return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+def filewrite(text):
+    with open('server.log', 'a') as logfile:
+        logfile.write(text + "\n")
+
+def clear_screen():
+    os.system('cls')
+
+def server_message(text):
+    message = f"{get_time()} - {text}"
+    print(f"{message}")
+    filewrite(f"{message}")
