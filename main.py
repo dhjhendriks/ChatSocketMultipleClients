@@ -14,6 +14,14 @@ def settings_read(menu,setting):
     config.read('config.ini')
     return config.get(menu, setting)
 
+def settings_write():
+    config = ConfigParser()
+    config.read('config.ini')
+    config.set('main', 'PORT', '80')
+
+    with open('config.ini', 'w') as f:
+        config.write(f)
+
 def get_text(text):
     global LANGUAGE
     language = ConfigParser()
@@ -143,15 +151,27 @@ def length(text):
     global CODEC
     return int(text.decode(CODEC).strip())
 
-VERSION = settings_read('main','VERSION')
-IP = settings_read('main','IP')
-PORT = int(settings_read('main','PORT'))
-HEADER_LENGTH = int(settings_read('main','HEADER_LENGTH'))
-EXIT_STRING = settings_read('main','EXIT_STRING')
-CODEC = settings_read('main','CODEC')
-LANGUAGE =  settings_read('main','LANGUAGE')
-logfile = settings_read('main','LOGFILE')
-my_username = settings_read('main','USERNAME_SERVER')
+############################### Variables
+
+VERSION = settings_read('main','version')
+IP = settings_read('main','ip')
+PORT = int(settings_read('main','port'))
+HEADER_LENGTH = int(settings_read('main','header_length'))
+EXIT_STRING = settings_read('main','exit_string')
+CODEC = settings_read('main','codec')
+LANGUAGE =  settings_read('main','language')
+logfile = settings_read('main','logfile')
+my_username = settings_read('main','username_server')
+
+############################### MAIN
+
+welcome(VERSION,EXIT_STRING)
+
+temp = input (f"IP {IP}: ")
+if temp != "": IP = temp
+temp = input (f"Port {PORT}: ")
+if temp != "": PORT = temp
+
 
 match get_arguments():
     case "s" | "server":
@@ -163,18 +183,12 @@ match get_arguments():
         sockets_list = [my_socket]
         clients = {}
                 
-        welcome(VERSION,EXIT_STRING)
         text_message(f"{logfile}",f"{get_text('listening text')} {IP}:{PORT}...")
-        server_message=""
+
         threading.Thread(target=server_send, args=[clients,logfile,EXIT_STRING], daemon=False).start()
         threading.Thread(target=server_recv, args=[sockets_list,my_socket,clients,logfile,HEADER_LENGTH], daemon=True).start()
 
     case "c" | "client":
-        temp = input (f"{IP}: ")
-        if temp != "": IP = temp
-        temp = input (f"{PORT}: ")
-        if temp != "": PORT = temp
-        
         my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             my_socket.connect((IP, PORT))
@@ -183,7 +197,6 @@ match get_arguments():
             sys.exit()
         my_socket.setblocking(False)
 
-        welcome(VERSION,EXIT_STRING)
         my_username = input(f"{get_text('Enter Username')}: ")
         logfile = f"client_{my_username}.log"
 
