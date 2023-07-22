@@ -10,12 +10,11 @@ match get_arguments():
 
         sockets_list = [my_socket]
         clients = {}
-        logfile = "server.log"
-        
+                
         welcome(VERSION,EXIT_STRING)
-        text_message(f"{logfile}",f"Listening for connections on {IP}:{PORT}...")
+        text_message(f"{logfile}",f"{get_text('Listening_text',L)} {IP}:{PORT}...")
 
-        threading.Thread(target=client_send, args=["Server",my_socket,HEADER_LENGTH,logfile,EXIT_STRING], daemon=False).start()
+        threading.Thread(target=server_send, args=[sockets_list,my_socket,clients,logfile,HEADER_LENGTH,EXIT_STRING], daemon=False).start()
         threading.Thread(target=server_recv, args=[sockets_list,my_socket,clients,logfile,HEADER_LENGTH], daemon=True).start()
 
     case "c" | "client":
@@ -24,16 +23,16 @@ match get_arguments():
         my_socket.setblocking(False)
 
         welcome(VERSION,EXIT_STRING)
-        my_username = input("Enter Username: ")
+        my_username = input(f"{get_text('Enter Username',L)}: ")
         logfile = f"client_{my_username}.log"
 
-        username = my_username.encode('utf-8')
-        username_header = f"{len(username):<{HEADER_LENGTH}}".encode('utf-8')
+        username = my_username.encode(CODEC)
+        username_header = f"{len(username):<{HEADER_LENGTH}}".encode(CODEC)
         my_socket.send(username_header + username)
-        text_message(f"{logfile}",f"The server on {IP}:{PORT} accepted the username: {my_username}")
+        text_message(f"{logfile}",f"{get_text('The server on',L)} {IP}:{PORT} {get_text('accepted the username',L)}: {my_username}")
 
         threading.Thread(target=client_send, args=[my_username,my_socket,HEADER_LENGTH,logfile,EXIT_STRING], daemon=False).start()
         threading.Thread(target=client_recv, args=[my_socket,HEADER_LENGTH,logfile], daemon=True).start()
 
     case _:
-        print("Argument 'type' has to be (s)erver or (c)lient")
+        print(get_text('Argument_text',L))
