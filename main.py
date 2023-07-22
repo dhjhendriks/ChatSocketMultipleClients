@@ -15,9 +15,10 @@ def settings_read(menu,setting):
     return config.get(menu, setting)
 
 def get_text(text):
+    global LANGUAGE
     language = ConfigParser()
     language.read('language.ini')
-    return language.get(text, 'nl')
+    return language.get(text, LANGUAGE)
 
 def get_arguments():
     parser = argparse.ArgumentParser()
@@ -148,7 +149,7 @@ PORT = int(settings_read('main','PORT'))
 HEADER_LENGTH = int(settings_read('main','HEADER_LENGTH'))
 EXIT_STRING = settings_read('main','EXIT_STRING')
 CODEC = settings_read('main','CODEC')
-L =  settings_read('main','LANGUAGE')
+LANGUAGE =  settings_read('main','LANGUAGE')
 logfile = settings_read('main','LOGFILE')
 my_username = settings_read('main','USERNAME_SERVER')
 
@@ -178,7 +179,7 @@ match get_arguments():
         try:
             my_socket.connect((IP, PORT))
         except:
-            #add server not awnsering
+            print(get_text('server not awnsering'))
             sys.exit()
         my_socket.setblocking(False)
 
