@@ -47,22 +47,32 @@ def get_text(string,L):
                 case "nl": return "U heeft de server gestopt."
                 case _:    return "You stopped the server."
 
+        case "Accepted new connection from":
+            match LANGUAGE:
+                case "nl": return "Geaccepteerde nieuwe verbinding van"
+                case _:    return "Accepted new connection from"
+
+        case "username":
+            match LANGUAGE:
+                case "nl": return "gebruikersnaam"
+                case _:    return "username"
+
+        case "closed connection from":
+            match LANGUAGE:
+                case "nl": return "Gesloten verbinding van"
+                case _:    return "Closed connection from"
+
+        case "you closed the connection":
+            match LANGUAGE:
+                case "nl": return "U hebt de verbinding gesloten"
+                case _:    return "You closed the connection"
+
+        case "connection closed by the server":
+            match LANGUAGE:
+                case "nl": return "De verbinding is gesloten door de server"
+                case _:    return "Connection closed by the server"
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        case _: return "-"
+        case _: return "-+-"

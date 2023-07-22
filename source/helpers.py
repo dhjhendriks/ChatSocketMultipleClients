@@ -64,11 +64,11 @@ def server_recv(sockets_list,my_socket,clients,logfile,HEADER_LENGTH):
                     continue
                 sockets_list.append(client_socket)
                 clients[client_socket] = user
-                text_message(f"{logfile}",f"Accepted new connection from {client_address} - username: {user['data'].decode(CODEC)}")
+                text_message(f"{logfile}",f"{get_text('Accepted new connection from',L)} {client_address} - {get_text('username',L)}: {user['data'].decode(CODEC)}")
             else:
                 message = receive_message(notified_socket,HEADER_LENGTH)
                 if message is False:
-                    text_message(f"{logfile}",f"Closed connection from: {clients[notified_socket]['data'].decode(CODEC)}")
+                    text_message(f"{logfile}",f"{get_text('closed connection from',L)}: {clients[notified_socket]['data'].decode(CODEC)}")
                     sockets_list.remove(notified_socket)
                     del clients[notified_socket]
                     continue
@@ -86,7 +86,7 @@ def client_send(my_socket,logfile,EXIT_STRING):
     while True:
         message = input()
         if message == EXIT_STRING:
-            text_message(f"{logfile}",f"You closed the connection")
+            text_message(f"{logfile}",f"{get_text('you closed the connection',L)}")
             sys.exit()
         if message:
             my_socket.send(header(encod(message)) + encod(message))
@@ -97,7 +97,7 @@ def client_recv(my_socket,HEADER_LENGTH,logfile):
             while True:
                 username_header = my_socket.recv(HEADER_LENGTH)
                 if not len(username_header):
-                    text_message(f"{logfile}",f"Connection closed by the server")
+                    text_message(f"{logfile}",f"{get_text('connection closed by the server'),L}")
                     sys.exit()
                 username_length = length(username_header)
                 username = decod(my_socket.recv(username_length))
