@@ -1,24 +1,9 @@
-2023-07-22 08:33:43 - Listening for connections on 127.0.0.1:1234...
-2023-07-22 08:35:39 - Listening for connections on 127.0.0.1:1234...
-2023-07-22 08:35:48 - Accepted new connection from ('127.0.0.1', 59905) - username: daan
-2023-07-22 08:39:41 - Listening for connections on 127.0.0.1:1234...
-2023-07-22 08:39:48 - Accepted new connection from ('127.0.0.1', 60161) - username: daan
-2023-07-22 08:39:52 - Closed connection from: daan
-2023-07-22 08:43:09 - Listening for connections on 127.0.0.1:1234...
-2023-07-22 08:43:15 - Accepted new connection from ('127.0.0.1', 60388) - username: daan
-2023-07-22 08:43:17 - Received message from daan: message['data'].decode('utf-8')
-2023-07-22 08:43:23 - Closed connection from: daan
-2023-07-22 08:44:22 - Listening for connections on 127.0.0.1:1234...
-2023-07-22 08:44:31 - Accepted new connection from ('127.0.0.1', 60444) - username: Daniel
-2023-07-22 08:44:33 - Daniel: hi
-2023-07-22 08:44:36 - Daniel: ok
-2023-07-22 08:44:38 - Daniel: bye
-2023-07-22 08:44:39 - Closed connection from: Daniel
-2023-07-22 08:48:31 - Accepted new connection from ('127.0.0.1', 60627) - username: Daniel
-2023-07-22 08:48:33 - Daniel: hi
-2023-07-22 08:48:38 - Daniel: how are you?
-2023-07-22 08:48:41 - Closed connection from: Daniel
-2023-07-22 08:48:56 - Accepted new connection from ('127.0.0.1', 60652) - username: Daniel
-2023-07-22 08:49:04 - Daniel: Are you there??
-2023-07-22 08:49:07 - Daniel: exit
-2023-07-22 08:49:11 - Closed connection from: Daniel
+2023-07-22 12:24:58 - Listening for connections on 127.0.0.1:1234...
+2023-07-22 12:25:55 - Accepted new connection from ('127.0.0.1', 61923) - username: daan2
+2023-07-22 12:25:55 - Accepted new connection from ('127.0.0.1', 61974) - username: daan1
+2023-07-22 12:26:01 - daan2: hi
+2023-07-22 12:26:04 - daan1: ok
+2023-07-22 12:26:06 - daan1: af
+2023-07-22 12:26:08 - daan2: by
+2023-07-22 12:26:25 - Closed connection from: daan1
+2023-07-22 12:26:26 - Closed connection from: daan2
