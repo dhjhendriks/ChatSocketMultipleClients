@@ -1,10 +1,32 @@
+#!/usr/bin/env python
+""" Short description of this Python module.
+Longer description of this module.
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with
+this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+
+__author__    = "Daniël Hendriks"
+__contact__   = "daan@hze.nl"
+__copyright__ = "Copyright 2023, HZE"
+__date__      = "2023-07-23"
+__license__   = "GPLv3"
+__status__    = "Development"
+__version__   = "V0.1.2"
+
 import socket,select,errno,sys,os,threading,time,argparse
 from datetime import datetime
 from configparser import ConfigParser
 
 def welcome(VERSION,EXIT_STRING):
     os.system('cls')
-    print(f"{get_text('welcome')} {VERSION}")
+    print(f"{get_text('welcome')} {__version__}")
     print(f"{get_text('type')} '{EXIT_STRING}' {get_text('to exit')}\n")
 
 ############################### Variables
@@ -153,7 +175,6 @@ def length(text):
 
 ############################### Variables
 
-VERSION = settings_read('main','version')
 IP = settings_read('main','ip')
 PORT = int(settings_read('main','port'))
 HEADER_LENGTH = int(settings_read('main','header_length'))
@@ -165,13 +186,12 @@ my_username = settings_read('main','username_server')
 
 ############################### MAIN
 
-welcome(VERSION,EXIT_STRING)
+welcome(__version__,EXIT_STRING)
 
 temp = input (f"IP {IP}: ")
 if temp != "": IP = temp
 temp = input (f"Port {PORT}: ")
 if temp != "": PORT = temp
-
 
 match get_arguments():
     case "s" | "server":
