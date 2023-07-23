@@ -41,6 +41,7 @@ import time
 import argparse
 import ipaddress
 import string
+import rsa
 from datetime import datetime
 from configparser import ConfigParser
 
@@ -219,12 +220,15 @@ def server_send(clients,LOGFILE,EXIT_STRING):
             sys.exit()
         if len(server_message) :
             for client_socket in clients:
-                client_socket.send(header(encod(my_username)) + encod(my_username)+header(encod(server_message)) + encod(server_message))
+                client_socket.send(header(encod(my_username)) 
+                                   + encod(my_username)+header(encod(server_message)) 
+                                   + encod(server_message))
             server_message=""
 
 
 # Server receive loop
 def server_recv(sockets_list,my_socket,clients,LOGFILE,HEADER_LENGTH):
+    global public_key
     while True:
         read_sockets, _, exception_sockets = select.select(sockets_list, [], sockets_list)
         for notified_socket in read_sockets:
@@ -243,7 +247,12 @@ def server_recv(sockets_list,my_socket,clients,LOGFILE,HEADER_LENGTH):
                     sockets_list.remove(notified_socket)
                     del clients[notified_socket]
                     continue
-                text_message(f"{LOGFILE}",f"{user['data'].decode(CODEC)}: {message['data'].decode(CODEC)}")
+                recv_username = user['data'].decode(CODEC)
+                recv_message = message['data'].decode(CODEC)
+                if recv_message[:10] == "PublicKey(":
+                    public_key[recv_username] = recv_message #TODO fix
+                    continue
+                text_message(f"{LOGFILE}",f"{recv_username}: {recv_message}")
                 user = clients[notified_socket]
                 for client_socket in clients:
                         client_socket.send(user['header'] + user['data'] + message['header'] + message['data'])
@@ -295,6 +304,21 @@ def client_recv(my_socket,HEADER_LENGTH,LOGFILE):
 # ------------------------------------------------------------------------------
 #  Functions Encode / Decode
 # ------------------------------------------------------------------------------
+
+
+def rsa_keys():
+    public_key, private_key = rsa.newkeys(2048)
+    return public_key, private_key
+
+
+def rsa_encrypt(decrypted_message, public_key):
+    encrypted_message = rsa.encrypt(decrypted_message.encode(), public_key)
+    return encrypted_message
+
+
+def rsa_decrypt(encrypted_message, private_key):
+    decrypted_message = rsa.decrypt(encrypted_message, private_key)
+    return decrypted_message.decode()
 
 
 # Encode text
@@ -371,13 +395,19 @@ match get_arguments():
             sys.exit()
         my_socket.setblocking(False)
 
+        public_key, private_key = rsa_keys()
+        
         my_username = get_username()
         LOGFILE = f"client_{my_username}.log"
 
-        username = my_username.encode(CODEC)
-        username_header = f"{len(username):<{HEADER_LENGTH}}".encode(CODEC)
-        my_socket.send(username_header + username)
+        temp = my_username.encode(CODEC)
+        temp_header = f"{len(temp):<{HEADER_LENGTH}}".encode(CODEC)
+        my_socket.send(temp_header + temp)
         text_message(f"{LOGFILE}",f"{get_text('The server on')} {IP}:{PORT} {get_text('accepted the username')}: {my_username}")
+
+        temp = str(public_key).encode(CODEC)
+        temp_header = f"{sys.getsizeof(temp):<{HEADER_LENGTH}}".encode(CODEC)
+        my_socket.send(temp_header + temp)
 
         threading.Thread(target=client_send, args=[my_socket,LOGFILE,EXIT_STRING], daemon=False).start()
         threading.Thread(target=client_recv, args=[my_socket,HEADER_LENGTH,LOGFILE], daemon=True).start()
@@ -389,4 +419,5 @@ match get_arguments():
     
     case _:
         print(get_text('argument text'))
-    
+
+ 
