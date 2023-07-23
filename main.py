@@ -27,17 +27,49 @@ __license__   = "GPLv3"
 __status__    = "Development"
 __version__   = "V0.1.2"
 
-# Import library
-import socket,select,errno,sys,os,threading,time,argparse,ipaddress,string
+# ------------------------------------------------------------------------------
+#  Import library
+# ------------------------------------------------------------------------------
+
+import socket
+import select
+import errno
+import sys
+import os
+import threading
+import time
+import argparse
+import ipaddress
+import string
 from datetime import datetime
 from configparser import ConfigParser
+
+# ------------------------------------------------------------------------------
+#  Global variables default
+# ------------------------------------------------------------------------------
+
+IP = ""
+PORT = 0
+HEADER_LENGTH = 0
+EXIT_STRING = ""
+CODEC = ""
+LANGUAGE =  ""
+LOGFILE = ""
+LOGGING = ""
+my_username = ""
+
+
+# ------------------------------------------------------------------------------
+#  Functions
+# ------------------------------------------------------------------------------
+
 
 # Clear screen and print welcme message
 def welcome(VERSION,EXIT_STRING):
     print(f"{get_text('welcome')} {__version__}")
 
 # ------------------------------------------------------------------------------
-#  Variables
+#  Functions Variables
 # ------------------------------------------------------------------------------
 
 # Read a setting from the config file
@@ -45,6 +77,7 @@ def settings_read(section,key):
     config = ConfigParser()
     config.read('config.ini')
     return config.get(section, key)
+
 
 # Write a setting to the config file
 def settings_write(section,key,value):
@@ -54,8 +87,9 @@ def settings_write(section,key,value):
     with open('config.ini', 'w') as f:
         config.write(f)
 
+
 # Get a valid IP
-def get_IP(IP):
+def get_ip(IP):
     temp = input (f"IP {IP}: ")
     if temp:
         if not validate_ip_address(temp):
@@ -65,6 +99,7 @@ def get_IP(IP):
         settings_write('main','ip',temp)
     return IP
 
+
 # Validate the IP address
 def validate_ip_address(IP):
    try:
@@ -73,8 +108,9 @@ def validate_ip_address(IP):
    except ValueError:
        return False
 
+
 # Get a valid port
-def get_PORT(PORT):
+def get_port(PORT):
     temp = input (f"Port {PORT}: ")
     if temp:
         if not validate_port(temp):
@@ -84,6 +120,7 @@ def get_PORT(PORT):
         settings_write('main','port',temp)
     return PORT
 
+
 # Validate the port
 def validate_port(PORT):
    try:
@@ -91,6 +128,7 @@ def validate_port(PORT):
         return True
    except ValueError:
        return False
+
 
 # Get a valid username
 def get_username():
@@ -100,6 +138,7 @@ def get_username():
             print(get_text('not valid'))
             sys.exit()
     return temp
+
 
 # Validate username
 def validate_username(username):
@@ -114,12 +153,14 @@ def validate_username(username):
         return False
     return True
 
+
 # Get text from language.ini
 def get_text(text):
     global LANGUAGE
     language = ConfigParser()
     language.read('language.ini')
     return language.get(text, LANGUAGE)
+
 
 # Get the python arguments
 def get_arguments():
@@ -129,29 +170,33 @@ def get_arguments():
     return args.type.lower()
 
 # ------------------------------------------------------------------------------
-#  Logging
+#  Functions Logging
 # ------------------------------------------------------------------------------
+
 
 # Get text of date and time
 def get_time():
     return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
+
 # Write text in file
-def filewrite(logfile,text):
-    global logging
-    if logging.lower() == "on":
-        with open(logfile, 'a') as log:
+def filewrite(LOGFILE,text):
+    global LOGGING
+    if LOGGING.lower() == "on":
+        with open(LOGFILE, 'a') as log:
             log.write(text + "\n")
 
+
 # Write text on screen and in file
-def text_message(logfile,text):
+def text_message(LOGFILE,text):
     message = f"{get_time()} - {text}"
     print(f"{message}")
-    filewrite(f"{logfile}",f"{message}")
+    filewrite(f"{LOGFILE}",f"{message}")
 
 # ------------------------------------------------------------------------------
-#  Server
+#  Functions Server
 # ------------------------------------------------------------------------------
+
 
 # Server receive message
 def receive_message(my_socket,HEADER_LENGTH):
@@ -163,21 +208,23 @@ def receive_message(my_socket,HEADER_LENGTH):
     except:
         return False
 
+
 # Server send loop
-def server_send(clients,logfile,EXIT_STRING):
+def server_send(clients,LOGFILE,EXIT_STRING):
     global server_message,my_username
     while True:
         server_message = input()
         if server_message == EXIT_STRING:
-            text_message(f"{logfile}",f"{get_text('You stopped the server')}")
+            text_message(f"{LOGFILE}",f"{get_text('You stopped the server')}")
             sys.exit()
         if len(server_message) :
             for client_socket in clients:
                 client_socket.send(header(encod(my_username)) + encod(my_username)+header(encod(server_message)) + encod(server_message))
             server_message=""
 
+
 # Server receive loop
-def server_recv(sockets_list,my_socket,clients,logfile,HEADER_LENGTH):
+def server_recv(sockets_list,my_socket,clients,LOGFILE,HEADER_LENGTH):
     while True:
         read_sockets, _, exception_sockets = select.select(sockets_list, [], sockets_list)
         for notified_socket in read_sockets:
@@ -188,15 +235,15 @@ def server_recv(sockets_list,my_socket,clients,logfile,HEADER_LENGTH):
                     continue
                 sockets_list.append(client_socket)
                 clients[client_socket] = user
-                text_message(f"{logfile}",f"{get_text('accepted')} {client_address} - {get_text('username')}: {user['data'].decode(CODEC)}")
+                text_message(f"{LOGFILE}",f"{get_text('accepted')} {client_address} - {get_text('username')}: {user['data'].decode(CODEC)}")
             else:
                 message = receive_message(notified_socket,HEADER_LENGTH)
                 if message is False:
-                    text_message(f"{logfile}",f"{get_text('closed connection from')}: {clients[notified_socket]['data'].decode(CODEC)}")
+                    text_message(f"{LOGFILE}",f"{get_text('closed connection from')}: {clients[notified_socket]['data'].decode(CODEC)}")
                     sockets_list.remove(notified_socket)
                     del clients[notified_socket]
                     continue
-                text_message(f"{logfile}",f"{user['data'].decode(CODEC)}: {message['data'].decode(CODEC)}")
+                text_message(f"{LOGFILE}",f"{user['data'].decode(CODEC)}: {message['data'].decode(CODEC)}")
                 user = clients[notified_socket]
                 for client_socket in clients:
                         client_socket.send(user['header'] + user['data'] + message['header'] + message['data'])
@@ -205,62 +252,68 @@ def server_recv(sockets_list,my_socket,clients,logfile,HEADER_LENGTH):
             del clients[notified_socket]
 
 # ------------------------------------------------------------------------------
-#  Client
+#  Functions Client
 # ------------------------------------------------------------------------------
 
+
 # Client send loop
-def client_send(my_socket,logfile,EXIT_STRING):
+def client_send(my_socket,LOGFILE,EXIT_STRING):
     while True:
         message = input()
         if message == EXIT_STRING:
-            text_message(f"{logfile}",f"{get_text('you closed the connection')}")
+            text_message(f"{LOGFILE}",f"{get_text('you closed the connection')}")
             sys.exit()
         if message:
             my_socket.send(header(encod(message)) + encod(message))
 
+
 # Client receive loop           
-def client_recv(my_socket,HEADER_LENGTH,logfile):
+def client_recv(my_socket,HEADER_LENGTH,LOGFILE):
     while True:
         try:
             while True:
                 username_header = my_socket.recv(HEADER_LENGTH)
                 if not len(username_header):
-                    text_message(f"{logfile}",f"{get_text('connection closed by the server')}")
+                    text_message(f"{LOGFILE}",f"{get_text('connection closed by the server')}")
                     sys.exit()
                 username_length = length(username_header)
                 username = decod(my_socket.recv(username_length))
                 message_header = my_socket.recv(HEADER_LENGTH)
                 message_length = length(message_header)
                 recv_message = decod(my_socket.recv(message_length))
-                text_message(f"{logfile}",f'{username}> {recv_message}')
+                text_message(f"{LOGFILE}",f'{username}> {recv_message}')
 
         except IOError as e:
             if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
-                text_message(f"{logfile}",f"{str(e)}")
+                text_message(f"{LOGFILE}",f"{str(e)}")
                 sys.exit()
             continue
         except Exception as e:
-            text_message(f"{logfile}",f"{str(e)}")
+            text_message(f"{LOGFILE}",f"{str(e)}")
             sys.exit() 
 
 # ------------------------------------------------------------------------------
-#  Encode / Decode
+#  Functions Encode / Decode
 # ------------------------------------------------------------------------------
+
 
 # Encode text
 def encod(text):
     global CODEC
     return text.encode(CODEC)
 
+
 # Decode text
 def decod(text):
     global CODEC
     return text.decode(CODEC)
 
+
 # Get header
 def header(text):
     global HEADER_LENGTH
     return encod(f"{len(text):<{HEADER_LENGTH}}")
+
 
  # Get length
 def length(text):
@@ -268,7 +321,7 @@ def length(text):
     return int(text.decode(CODEC).strip())
 
 # ------------------------------------------------------------------------------
-#  Set variables
+#  Set variables from config file
 # ------------------------------------------------------------------------------
 
 IP = settings_read('main','ip')
@@ -277,9 +330,9 @@ HEADER_LENGTH = int(settings_read('main','header_length'))
 EXIT_STRING = settings_read('main','exit_string')
 CODEC = settings_read('main','codec')
 LANGUAGE =  settings_read('main','language')
-logfile = settings_read('main','logfile')
+LOGFILE = settings_read('main','logfile')
+LOGGING = settings_read('main','LOGGING')
 my_username = settings_read('main','username_server')
-logging = settings_read('main','logging')
 
 # ------------------------------------------------------------------------------
 #  MAIN
@@ -290,8 +343,8 @@ welcome(__version__,EXIT_STRING)
 # Execute server, client or help code
 match get_arguments():
     case "s" | "server":
-        IP = get_IP(IP)
-        PORT = get_PORT(PORT)
+        IP = get_ip(IP)
+        PORT = get_port(PORT)
 
         my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -301,14 +354,14 @@ match get_arguments():
         sockets_list = [my_socket]
         clients = {}
                 
-        text_message(f"{logfile}",f"{get_text('listening text')} {IP}:{PORT}...")
+        text_message(f"{LOGFILE}",f"{get_text('listening text')} {IP}:{PORT}...")
 
-        threading.Thread(target=server_send, args=[clients,logfile,EXIT_STRING], daemon=False).start()
-        threading.Thread(target=server_recv, args=[sockets_list,my_socket,clients,logfile,HEADER_LENGTH], daemon=True).start()
+        threading.Thread(target=server_send, args=[clients,LOGFILE,EXIT_STRING], daemon=False).start()
+        threading.Thread(target=server_recv, args=[sockets_list,my_socket,clients,LOGFILE,HEADER_LENGTH], daemon=True).start()
 
     case "c" | "client":
-        IP = get_IP(IP)
-        PORT = get_PORT(PORT)
+        IP = get_ip(IP)
+        PORT = get_port(PORT)
         
         my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
@@ -319,15 +372,15 @@ match get_arguments():
         my_socket.setblocking(False)
 
         my_username = get_username()
-        logfile = f"client_{my_username}.log"
+        LOGFILE = f"client_{my_username}.log"
 
         username = my_username.encode(CODEC)
         username_header = f"{len(username):<{HEADER_LENGTH}}".encode(CODEC)
         my_socket.send(username_header + username)
-        text_message(f"{logfile}",f"{get_text('The server on')} {IP}:{PORT} {get_text('accepted the username')}: {my_username}")
+        text_message(f"{LOGFILE}",f"{get_text('The server on')} {IP}:{PORT} {get_text('accepted the username')}: {my_username}")
 
-        threading.Thread(target=client_send, args=[my_socket,logfile,EXIT_STRING], daemon=False).start()
-        threading.Thread(target=client_recv, args=[my_socket,HEADER_LENGTH,logfile], daemon=True).start()
+        threading.Thread(target=client_send, args=[my_socket,LOGFILE,EXIT_STRING], daemon=False).start()
+        threading.Thread(target=client_recv, args=[my_socket,HEADER_LENGTH,LOGFILE], daemon=True).start()
 
     case "h" | "help":
         print(get_text('argument text'))
