@@ -188,7 +188,7 @@ def server_recv(sockets_list,my_socket,clients,logfile,HEADER_LENGTH):
                     continue
                 sockets_list.append(client_socket)
                 clients[client_socket] = user
-                text_message(f"{logfile}",f"{get_text('Accepted new connection from')} {client_address} - {get_text('username')}: {user['data'].decode(CODEC)}")
+                text_message(f"{logfile}",f"{get_text('accepted')} {client_address} - {get_text('username')}: {user['data'].decode(CODEC)}")
             else:
                 message = receive_message(notified_socket,HEADER_LENGTH)
                 if message is False:
