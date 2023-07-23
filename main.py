@@ -1,20 +1,26 @@
 #!/usr/bin/env python
-""" See README.md
-Longer description of this module.
-This program is free software: you can redistribute it and/or modify it under
-the terms of the GNU General Public License as published by the Free Software
-Foundation, either version 3 of the License, or (at your option) any later
-version.
-This program is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-You should have received a copy of the GNU General Public License along with
-this program. If not, see <http://www.gnu.org/licenses/>.
-"""
+# ------------------------------------------------------------------------------
+#  See README.md
+# Longer description of this module.
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation, either version 3 of the License, or (at your option) any later
+# version.
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License along with
+# this program. If not, see <http://www.gnu.org/licenses/>.
+# ------------------------------------------------------------------------------
+# Parameters:
+#
+# s or server: Operate as a server (example: python main.py s)
+# c or client: Operate as a client
+# ------------------------------------------------------------------------------
 
 __author__    = "Daniël Hendriks"
 __contact__   = "daan@hze.nl"
-__copyright__ = "Copyright 2023, HZE"
+__copyright__ = "Copyright 2023, HZE B.V."
 __date__      = "2023-07-23"
 __license__   = "GPLv3"
 __status__    = "Development"
@@ -31,7 +37,9 @@ def welcome(VERSION,EXIT_STRING):
     print(f"{get_text('welcome')} {__version__}")
     print(f"{get_text('type')} '{EXIT_STRING}' {get_text('to exit')}\n")
 
-############################### Variables
+# ------------------------------------------------------------------------------
+#  Variables
+# ------------------------------------------------------------------------------
 
 # Read a setting from the config file
 def settings_read(section,key):
@@ -121,7 +129,9 @@ def get_arguments():
     args = parser.parse_args()
     return args.type.lower()
 
-############################### Logging
+# ------------------------------------------------------------------------------
+#  Logging
+# ------------------------------------------------------------------------------
 
 # Get text of date and time
 def get_time():
@@ -140,7 +150,9 @@ def text_message(logfile,text):
     print(f"{message}")
     filewrite(f"{logfile}",f"{message}")
 
-############################### Server
+# ------------------------------------------------------------------------------
+#  Server
+# ------------------------------------------------------------------------------
 
 # Server receive message
 def receive_message(my_socket,HEADER_LENGTH):
@@ -193,7 +205,9 @@ def server_recv(sockets_list,my_socket,clients,logfile,HEADER_LENGTH):
             sockets_list.remove(notified_socket)
             del clients[notified_socket]
 
-############################### Client
+# ------------------------------------------------------------------------------
+#  Client
+# ------------------------------------------------------------------------------
 
 # Client send loop
 def client_send(my_socket,logfile,EXIT_STRING):
@@ -230,7 +244,9 @@ def client_recv(my_socket,HEADER_LENGTH,logfile):
             text_message(f"{logfile}",f"{str(e)}")
             sys.exit() 
 
-############################### Encode/Decode
+# ------------------------------------------------------------------------------
+#  Encode / Decode
+# ------------------------------------------------------------------------------
 
 # Encode text
 def encod(text):
@@ -252,7 +268,9 @@ def length(text):
     global CODEC
     return int(text.decode(CODEC).strip())
 
-############################### Variables
+# ------------------------------------------------------------------------------
+#  Set variables
+# ------------------------------------------------------------------------------
 
 IP = settings_read('main','ip')
 PORT = int(settings_read('main','port'))
@@ -264,7 +282,9 @@ logfile = settings_read('main','logfile')
 my_username = settings_read('main','username_server')
 logging = settings_read('main','logging')
 
-############################### MAIN
+# ------------------------------------------------------------------------------
+#  MAIN
+# ------------------------------------------------------------------------------
 
 welcome(__version__,EXIT_STRING)
 
