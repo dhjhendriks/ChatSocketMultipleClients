@@ -129,8 +129,10 @@ def get_time():
 
 # Write text in file
 def filewrite(logfile,text):
-    with open(logfile, 'a') as log:
-        log.write(text + "\n")
+    global logging
+    if logging.lower() == "on":
+        with open(logfile, 'a') as log:
+            log.write(text + "\n")
 
 # Write text on screen and in file
 def text_message(logfile,text):
@@ -260,6 +262,7 @@ CODEC = settings_read('main','codec')
 LANGUAGE =  settings_read('main','language')
 logfile = settings_read('main','logfile')
 my_username = settings_read('main','username_server')
+logging = settings_read('main','logging')
 
 ############################### MAIN
 
