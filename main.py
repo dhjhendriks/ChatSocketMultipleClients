@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" Short description of this Python module.
+""" See README.md
 Longer description of this module.
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -20,6 +20,7 @@ __license__   = "GPLv3"
 __status__    = "Development"
 __version__   = "V0.1.2"
 
+# Import library
 import socket,select,errno,sys,os,threading,time,argparse,ipaddress,string
 from datetime import datetime
 from configparser import ConfigParser
@@ -122,13 +123,16 @@ def get_arguments():
 
 ############################### Logging
 
+# Get text of date and time
 def get_time():
     return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
+# Write text in file
 def filewrite(logfile,text):
     with open(logfile, 'a') as log:
         log.write(text + "\n")
 
+# Write text on screen and in file
 def text_message(logfile,text):
     message = f"{get_time()} - {text}"
     print(f"{message}")
@@ -136,6 +140,7 @@ def text_message(logfile,text):
 
 ############################### Server
 
+# Server receive message
 def receive_message(my_socket,HEADER_LENGTH):
     try:
         message_header = my_socket.recv(HEADER_LENGTH)
@@ -145,6 +150,7 @@ def receive_message(my_socket,HEADER_LENGTH):
     except:
         return False
 
+# Server send loop
 def server_send(clients,logfile,EXIT_STRING):
     global server_message,my_username
     while True:
@@ -157,6 +163,7 @@ def server_send(clients,logfile,EXIT_STRING):
                 client_socket.send(header(encod(my_username)) + encod(my_username)+header(encod(server_message)) + encod(server_message))
             server_message=""
 
+# Server receive loop
 def server_recv(sockets_list,my_socket,clients,logfile,HEADER_LENGTH):
     while True:
         read_sockets, _, exception_sockets = select.select(sockets_list, [], sockets_list)
@@ -186,6 +193,7 @@ def server_recv(sockets_list,my_socket,clients,logfile,HEADER_LENGTH):
 
 ############################### Client
 
+# Client send loop
 def client_send(my_socket,logfile,EXIT_STRING):
     while True:
         message = input()
@@ -194,7 +202,8 @@ def client_send(my_socket,logfile,EXIT_STRING):
             sys.exit()
         if message:
             my_socket.send(header(encod(message)) + encod(message))
-           
+
+# Client receive loop           
 def client_recv(my_socket,HEADER_LENGTH,logfile):
     while True:
         try:
@@ -221,18 +230,22 @@ def client_recv(my_socket,HEADER_LENGTH,logfile):
 
 ############################### Encode/Decode
 
+# Encode text
 def encod(text):
     global CODEC
     return text.encode(CODEC)
 
+# Decode text
 def decod(text):
     global CODEC
     return text.decode(CODEC)
 
+# Get header
 def header(text):
     global HEADER_LENGTH
     return encod(f"{len(text):<{HEADER_LENGTH}}")
 
+ # Get length
 def length(text):
     global CODEC
     return int(text.decode(CODEC).strip())
@@ -255,7 +268,7 @@ welcome(__version__,EXIT_STRING)
 IP = get_IP(IP)
 PORT = get_PORT(PORT)
 
-# Execute server or client
+# Execute server or client code
 match get_arguments():
     case "s" | "server":
         my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
