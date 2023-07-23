@@ -16,6 +16,7 @@
 #
 # s or server: Operate as a server (example: python main.py s)
 # c or client: Operate as a client
+# h or help:   Help text
 # ------------------------------------------------------------------------------
 
 __author__    = "Daniël Hendriks"
@@ -33,9 +34,7 @@ from configparser import ConfigParser
 
 # Clear screen and print welcme message
 def welcome(VERSION,EXIT_STRING):
-    os.system('cls')
     print(f"{get_text('welcome')} {__version__}")
-    print(f"{get_text('type')} '{EXIT_STRING}' {get_text('to exit')}\n")
 
 # ------------------------------------------------------------------------------
 #  Variables
@@ -288,12 +287,12 @@ logging = settings_read('main','logging')
 
 welcome(__version__,EXIT_STRING)
 
-IP = get_IP(IP)
-PORT = get_PORT(PORT)
-
-# Execute server or client code
+# Execute server, client or help code
 match get_arguments():
     case "s" | "server":
+        IP = get_IP(IP)
+        PORT = get_PORT(PORT)
+
         my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         my_socket.bind((IP, PORT))
@@ -308,6 +307,9 @@ match get_arguments():
         threading.Thread(target=server_recv, args=[sockets_list,my_socket,clients,logfile,HEADER_LENGTH], daemon=True).start()
 
     case "c" | "client":
+        IP = get_IP(IP)
+        PORT = get_PORT(PORT)
+        
         my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             my_socket.connect((IP, PORT))
@@ -327,5 +329,11 @@ match get_arguments():
         threading.Thread(target=client_send, args=[my_socket,logfile,EXIT_STRING], daemon=False).start()
         threading.Thread(target=client_recv, args=[my_socket,HEADER_LENGTH,logfile], daemon=True).start()
 
+    case "h" | "help":
+        print(get_text('argument text'))
+        print(f"{get_text('type')} '{EXIT_STRING}' {get_text('to exit')}\n")
+        print(get_text('help'))
+    
     case _:
         print(get_text('argument text'))
+    

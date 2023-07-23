@@ -1,6 +1,18 @@
 [argument text]
-nl = Argument 'type' moet zijn (s)erver of (c)lient
-en = Argument 'type' has to be (s)erver or (c)lient
+nl = Argument 'type' moet zijn (s)erver of (c)lient of (h)elp
+en = Argument 'type' has to be (s)erver or (c)lient or (h)elp
+
+[type]
+nl = Tik
+en = Type
+
+[to exit]
+nl = om te stoppen
+en = to quit
+
+[help]
+nl = Voor meer help e-mail Daniel Hendriks<daan@hze.nl>
+en = For additional help email Daniel Hendriks<daan@hze.nl>
 
 [listening text]
 nl = Luisteren voor verbindingen op
@@ -21,14 +33,6 @@ en = accepted the username
 [welcome]
 nl = Welkom bij Socket!
 en = Welcome to Socket!
-
-[type]
-nl = Tik
-en = Type
-
-[to exit]
-nl = om te stoppen
-en = to quit
 
 [You stopped the server]
 nl = U heeft de server gestopt.
