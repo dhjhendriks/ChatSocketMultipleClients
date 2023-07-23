@@ -20,10 +20,11 @@ __license__   = "GPLv3"
 __status__    = "Development"
 __version__   = "V0.1.2"
 
-import socket,select,errno,sys,os,threading,time,argparse
+import socket,select,errno,sys,os,threading,time,argparse,ipaddress,string
 from datetime import datetime
 from configparser import ConfigParser
 
+# Clear screen and print welcme message
 def welcome(VERSION,EXIT_STRING):
     os.system('cls')
     print(f"{get_text('welcome')} {__version__}")
@@ -31,25 +32,88 @@ def welcome(VERSION,EXIT_STRING):
 
 ############################### Variables
 
-def settings_read(menu,setting):
+# Read a setting from the config file
+def settings_read(section,key):
     config = ConfigParser()
     config.read('config.ini')
-    return config.get(menu, setting)
+    return config.get(section, key)
 
-def settings_write():
+# Write a setting to the config file
+def settings_write(section,key,value):
     config = ConfigParser()
     config.read('config.ini')
-    config.set('main', 'PORT', '80')
-
+    config.set(section, key, value)
     with open('config.ini', 'w') as f:
         config.write(f)
 
+# Get a valid IP
+def get_IP(IP):
+    temp = input (f"IP {IP}: ")
+    if temp:
+        if not validate_ip_address(temp):
+            print(get_text('not valid'))
+            sys.exit()
+        IP = temp
+        settings_write('main','ip',temp)
+    return IP
+
+# Validate the IP address
+def validate_ip_address(IP):
+   try:
+       ip_object = ipaddress.ip_address(IP)
+       return True
+   except ValueError:
+       return False
+
+# Get a valid port
+def get_PORT(PORT):
+    temp = input (f"Port {PORT}: ")
+    if temp:
+        if not validate_port(temp):
+            print(get_text('not valid'))
+            sys.exit()
+        PORT = temp
+        settings_write('main','port',temp)
+    return PORT
+
+# Validate the port
+def validate_port(PORT):
+   try:
+       if 1 <= int(PORT) <= 65535:
+        return True
+   except ValueError:
+       return False
+
+# Get a valid username
+def get_username():
+    temp = input (f"{get_text('Enter Username')}: ")
+    if temp:
+        if not validate_username(temp):
+            print(get_text('not valid'))
+            sys.exit()
+    return temp
+
+# Validate username
+def validate_username(username):
+    match=string.ascii_letters + string.digits + '_'
+    if not all([x in match for x in username]):
+        return False
+    if not (len(username) >=4 and len(username) <=25):
+        return False
+    if not username[0].isalpha():
+        return False
+    if username[-1:] == '_':
+        return False
+    return True
+
+# Get text from language.ini
 def get_text(text):
     global LANGUAGE
     language = ConfigParser()
     language.read('language.ini')
     return language.get(text, LANGUAGE)
 
+# Get the python arguments
 def get_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("type")
@@ -188,11 +252,10 @@ my_username = settings_read('main','username_server')
 
 welcome(__version__,EXIT_STRING)
 
-temp = input (f"IP {IP}: ")
-if temp != "": IP = temp
-temp = input (f"Port {PORT}: ")
-if temp != "": PORT = temp
+IP = get_IP(IP)
+PORT = get_PORT(PORT)
 
+# Execute server or client
 match get_arguments():
     case "s" | "server":
         my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -213,11 +276,11 @@ match get_arguments():
         try:
             my_socket.connect((IP, PORT))
         except:
-            print(get_text('server not awnsering'))
+            print(f"{get_text('server not awnsering')} {IP}:{PORT}")
             sys.exit()
         my_socket.setblocking(False)
 
-        my_username = input(f"{get_text('Enter Username')}: ")
+        my_username = get_username()
         logfile = f"client_{my_username}.log"
 
         username = my_username.encode(CODEC)
